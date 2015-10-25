@@ -76,7 +76,9 @@ map("state",
     lwd = 0.4,
     projection = "polyconic")
 
-title("Coal Source PM2.5 Emission Differences Between 1999 and 2008 by County")
+title(paste("Coal Source PM2.5 Emission Differences Between",
+             "1999 and 2008 by County [tons]")
+)
 leg.txt <- c("< -20", "-20 to -10", "-10 to -5", "-5 to -2", "-2 to 2",
              "2 to 5", "5 to 10", "10 to 20", "> 20", "no data")
 legend("top", leg.txt, horiz = TRUE, fill = c(mapColors, "#FFFFFF"))
