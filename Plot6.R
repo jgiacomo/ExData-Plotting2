@@ -2,15 +2,21 @@
 # PM2.5 emissions from motor vehicles in Baltimore Maryland and Los Angeles
 # California between 1999 and 2008.
 
-# Check if the data frame 'fnei' exists into which I have stored the data. If
-# not run the script which will get the data and place it into this data frame.
-if(!exists("fnei")){
-    source("getFNEI_dataset.R")
-}
-
-# Use the dplyr package to filter to just the fips code for Baltimore and then
-# summarize the total emissions for each source type and reported year.
 library(dplyr)
+library(ggplot2)
+
+# Check if the data frame 'fnei' exists into which I have stored the data. If
+# not get the data from the R data files and place it into this data frame.
+if(!exists("fnei")){
+    # Read the R data objects into memory from the files.
+    emissions <- readRDS("summarySCC_PM25.rds")
+    sourceClass <- readRDS("Source_Classification_Code.rds")
+    
+    # Join the source class data with the emissions data
+    sourceClass$SCC <- as.character(sourceClass$SCC)
+    fnei <- left_join(x=emissions, y=sourceClass, by="SCC")
+    rm(emissions, sourceClass)  # clean up
+}
 
 # First filter to just motor vehicle emissions.
 MVsources <- grep('Mobile - On-Road', unique(fnei$EI.Sector), value = TRUE)
@@ -20,8 +26,8 @@ motorVeh <- fnei %>% filter(EI.Sector %in% MVsources)
 plotData <- motorVeh %>% filter(fips %in% c("24510","06037")) %>%
     group_by(fips, year) %>% summarize(totalEmis = sum(Emissions))
 
-# Create a png of a ggplot2 line plot of the total emissions for each source
-# type for reported year.
+# Create a png of a ggplot2 line plot of the motor vehicle emissions for each
+# region.
 library(ggplot2)
 
 p1 <- ggplot(plotData, aes(x=year, y=totalEmis, color=fips))

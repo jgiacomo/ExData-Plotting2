@@ -5,7 +5,14 @@
 # Check if the data frame 'fnei' exists into which I have stored the data. If
 # not run the script which will get the data and place it into this data frame.
 if(!exists("fnei")){
-    source("getFNEI_dataset.R")
+    # Read the R data objects into memory from the files.
+    emissions <- readRDS("summarySCC_PM25.rds")
+    sourceClass <- readRDS("Source_Classification_Code.rds")
+    
+    # Join the source class data with the emissions data
+    sourceClass$SCC <- as.character(sourceClass$SCC)
+    fnei <- left_join(x=emissions, y=sourceClass, by="SCC")
+    rm(emissions, sourceClass)  # clean up
 }
 
 # Use the dplyr package to filter coal sources and summarize total emissions.
